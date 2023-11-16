@@ -1,0 +1,10 @@
+# environment variables
+.env
+.env.*
+
+# node_modules
+node_modules/
+
+# output files
+dist/
+files/
