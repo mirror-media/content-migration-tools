@@ -11,7 +11,6 @@ import { RawPost } from '../graphql/post'
 async function fireGqlRequest<T, U extends string>(
   query: string,
   variables: undefined | Record<string, JSONValue>,
-  authToken?: string,
 ) {
   const { data: result } = await axios.post<GenericGQLData<T, U>>(
     CMS_API_URL,
@@ -23,7 +22,6 @@ async function fireGqlRequest<T, U extends string>(
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
-        Cookie: `keystonejs-session=${authToken}`,
       },
     },
   )

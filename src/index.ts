@@ -12,8 +12,7 @@ import { GetPostCountQuery, GetPostsQuery, type RawPost } from './graphql/post'
 import { fireGqlRequest, log } from './helpers/utils'
 import { ensureDirectory } from './helpers/fs'
 import migration01 from './migrations/01'
-
-let AUTH_TOKEN: string
+import axios from 'axios'
 
 async function getAuth(): Promise<[boolean, string]> {
   const { data } = await fireGqlRequest<
@@ -41,7 +40,6 @@ async function getPostCount() {
       beginDate: BEGIN_DATE_TIME,
       endDate: END_DATE_TIME,
     },
-    AUTH_TOKEN,
   )
 
   if (data?.count) {
@@ -60,7 +58,6 @@ async function getPosts(take: number = 1000, skip: number = 0) {
       take: take,
       skip: skip,
     },
-    AUTH_TOKEN,
   )
 
   if (data?.posts) {
@@ -80,8 +77,9 @@ async function main() {
 
     log('auth result is: ', authResult[0])
     if (authResult[0]) {
-      AUTH_TOKEN = authResult[1]
-      log('auth token is: ', AUTH_TOKEN)
+      log('auth token is: ', authResult[1])
+      axios.defaults.headers.common['Cookie'] =
+        `keystonejs-session=${authResult[1]}`
     } else {
       log('failed message is: ', authResult[1])
     }
