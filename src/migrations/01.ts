@@ -1,7 +1,8 @@
 import type { RawPost } from '../graphql/post'
 import { setupEmptyDirectory } from '../helpers/fs'
 import { OUTDIR_BASE_PATH } from '../constants/config'
-import { errorLog } from '../helpers/utils'
+import { join } from 'node:path'
+import getImageInfoesInSlideshowV2 from '../operations/get-image-infoes-in-slideshow-v2'
 import writePostsToFiles from '../operations/writePostsToFiles'
 /**
  * Update slideshow-v2 and video type entity
@@ -38,6 +39,16 @@ export default async function migration01(
       return
     }
   }
+
+  // get used image infoes
+  const imageInfoes = await getImageInfoesInSlideshowV2(posts)
+  const imageInfoCount = Object.keys(imageInfoes).length
+  log(`Got ${imageInfoCount} image infoes.`)
+
+  const { modifiedPostIds, modifiedPosts } = modifyContentData(posts, [
+    wrapFunctionWithDeps(appendAttributesToImagesInSlideshowV2, imageInfoes),
+    appendUrlOriginalToVideosInVideo,
+  ])
 
   log('Finished migration01')
 }

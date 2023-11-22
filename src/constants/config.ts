@@ -15,3 +15,5 @@ export const BEGIN_DATE_TIME = env.BEGIN_DATE_TIME ?? new Date().toISOString()
 export const END_DATE_TIME = env.END_DATE_TIME ?? new Date().toISOString()
 
 export const OUTDIR_BASE_PATH = join(cwd(), 'files')
+
+export const GCS_BUCKET = env.GCS_BUCKET ?? 'v3-statics-dev.mirrormedia.mg'
