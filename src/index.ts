@@ -11,6 +11,7 @@ import { GetAuthMutation, type RawAuthResult } from './graphql/auth'
 import { GetPostCountQuery, GetPostsQuery, type RawPost } from './graphql/post'
 import { fireGqlRequest, log } from './helpers/utils'
 import { ensureDirectory } from './helpers/fs'
+import migration01 from './migrations/01'
 
 let AUTH_TOKEN: string
 
@@ -91,6 +92,19 @@ async function main() {
 
   log('total count of posts: ', totalCount)
 
+  let offset: number = 0
+  const take: number = 1000
+
+  log('begin migration process')
+  while (offset < totalCount) {
+    // get posts
+    const rawPostList = await getPosts(take, offset)
+
+    await migration01(rawPostList, offset === 0)
+
+    offset += Math.min(take, rawPostList.length)
+  }
+  log('finished migration process')
 }
 
 main()
