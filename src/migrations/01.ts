@@ -3,7 +3,12 @@ import { setupEmptyDirectory } from '../helpers/fs'
 import { OUTDIR_BASE_PATH } from '../constants/config'
 import { join } from 'node:path'
 import getImageInfoesInSlideshowV2 from '../operations/get-image-infoes-in-slideshow-v2'
-import { errorLog, log, wrapFunctionWithDeps } from '../helpers/utils'
+import {
+  askQuestion,
+  errorLog,
+  log,
+  wrapFunctionWithDeps,
+} from '../helpers/utils'
 import writePostsToFiles from '../operations/writePostsToFiles'
 import modifyContentData from '../operations/modify-content-data'
 import { writeFile, appendFile } from 'node:fs/promises'
@@ -11,6 +16,7 @@ import {
   appendAttributesToImagesInSlideshowV2,
   appendUrlOriginalToVideosInVideo,
 } from '../helpers/draft-js'
+import updatePostDataToCMS from '../operations/update-post-data-to-cms'
 
 /**
  * Update slideshow-v2 and video type entity
@@ -80,7 +86,15 @@ export default async function migration01(
 
     if (fail !== 0) {
       errorLog(`There are ${fail} errors while backing up modified posts.`)
+      return
     }
+  }
+
+  const ans = await askQuestion(
+    'About to update post data in CMS.  Press (Y/y) to confirm: ',
+  )
+  if (ans.toLowerCase() === 'y') {
+    await updatePostDataToCMS(modifiedPosts)
   }
 
   log('Finished migration01')

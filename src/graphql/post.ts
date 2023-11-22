@@ -52,3 +52,17 @@ export const GetPostsQuery = gql`
     }
   }
 `
+
+export const UpdatePostsMutation = gql`
+  mutation ($data: [PostUpdateArgs!]!) {
+    updatePosts(data: $data) {
+      id
+      title
+      slug
+      publishedDate
+      createdAt
+      updatedAt
+      content
+    }
+  }
+`

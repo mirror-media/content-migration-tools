@@ -7,6 +7,7 @@ import type {
 import axios from 'axios'
 import { CMS_API_URL } from '../constants/config'
 import { RawPost } from '../graphql/post'
+import readline from 'node:readline'
 
 async function fireGqlRequest<T, U extends string>(
   query: string,
@@ -71,4 +72,25 @@ function wrapFunctionWithDeps(
   return f
 }
 
-export { fireGqlRequest, log, errorLog, uniq, wrapFunctionWithDeps }
+async function askQuestion(query: string) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  return new Promise((resolve: (value: string) => void) => {
+    rl.question(query, ans => {
+      rl.close()
+      resolve(ans)
+    })
+  })
+}
+
+export {
+  fireGqlRequest,
+  log,
+  errorLog,
+  uniq,
+  wrapFunctionWithDeps,
+  askQuestion,
+}
