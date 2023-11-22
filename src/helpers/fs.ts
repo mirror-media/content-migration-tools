@@ -1,6 +1,9 @@
 import { constants } from 'node:fs'
-import { mkdir, access, readdir, rm } from 'node:fs/promises'
+import { mkdir, access, readdir, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import type { JSONValue } from '../types/common'
+import { errorLog } from './utils'
+
 async function ensureDirectory(dir: string) {
   try {
     await access(dir, constants.W_OK)
@@ -25,4 +28,17 @@ async function setupEmptyDirectory(dir: string) {
     await Promise.allSettled(tasks)
   }
 }
-export { ensureDirectory, setupEmptyDirectory }
+
+async function writeJson(path: string, json: JSONValue) {
+  try {
+    await writeFile(path, JSON.stringify(json), {
+      encoding: 'utf-8',
+      flag: 'w+',
+    })
+  } catch (err) {
+    errorLog('Error on writeJson: ', path)
+    errorLog(err)
+  }
+}
+
+export { ensureDirectory, setupEmptyDirectory, writeJson }

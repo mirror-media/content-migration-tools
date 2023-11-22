@@ -1,6 +1,8 @@
 import type { RawPost } from '../graphql/post'
 import { setupEmptyDirectory } from '../helpers/fs'
 import { OUTDIR_BASE_PATH } from '../constants/config'
+import { errorLog } from '../helpers/utils'
+import writePostsToFiles from '../operations/writePostsToFiles'
 /**
  * Update slideshow-v2 and video type entity
  * 1. add width and height attributes to images in slideshow-v2
@@ -26,5 +28,16 @@ export default async function migration01(
     await setupEmptyDirectory(prepareDirPath)
     log(`backupDirPath: ${prepareDirPath} exists.`)
   }
+
+  // back up posts before operations
+  {
+    const { ok, fail } = await writePostsToFiles(backupDirPath, posts)
+
+    if (fail !== 0) {
+      errorLog(`There are ${fail} errors while backing up posts.`)
+      return
+    }
+  }
+
   log('Finished migration01')
 }
