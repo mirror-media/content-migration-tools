@@ -1,5 +1,6 @@
 import 'dotenv/config'
-import { env } from 'node:process'
+import { env, cwd } from 'node:process'
+import { join } from 'node:path'
 
 export const CMS_API_URL = env.CMS_API_URL ?? ''
 
@@ -13,3 +14,4 @@ export const BEGIN_DATE_TIME = env.BEGIN_DATE_TIME ?? new Date().toISOString()
 
 export const END_DATE_TIME = env.END_DATE_TIME ?? new Date().toISOString()
 
+export const OUTDIR_BASE_PATH = join(cwd(), 'files')

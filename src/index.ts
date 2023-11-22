@@ -10,6 +10,7 @@ import {
 import { GetAuthMutation, type RawAuthResult } from './graphql/auth'
 import { GetPostCountQuery, GetPostsQuery, type RawPost } from './graphql/post'
 import { fireGqlRequest, log } from './helpers/utils'
+import { ensureDirectory } from './helpers/fs'
 
 let AUTH_TOKEN: string
 
@@ -69,7 +70,10 @@ async function getPosts(take: number = 1000, skip: number = 0) {
 }
 
 async function main() {
-console.log('hello world');
+  // setup base output directory
+  await ensureDirectory(OUTDIR_BASE_PATH)
+  log(`OUTPUT_BASE_PATH: ${OUTDIR_BASE_PATH} exists.`)
+
   if (SHOULD_GET_AUTH) {
     const authResult = await getAuth()
 
