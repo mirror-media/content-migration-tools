@@ -3,7 +3,15 @@ import { setupEmptyDirectory } from '../helpers/fs'
 import { OUTDIR_BASE_PATH } from '../constants/config'
 import { join } from 'node:path'
 import getImageInfoesInSlideshowV2 from '../operations/get-image-infoes-in-slideshow-v2'
+import { errorLog, log, wrapFunctionWithDeps } from '../helpers/utils'
 import writePostsToFiles from '../operations/writePostsToFiles'
+import modifyContentData from '../operations/modify-content-data'
+import { writeFile, appendFile } from 'node:fs/promises'
+import {
+  appendAttributesToImagesInSlideshowV2,
+  appendUrlOriginalToVideosInVideo,
+} from '../helpers/draft-js'
+
 /**
  * Update slideshow-v2 and video type entity
  * 1. add width and height attributes to images in slideshow-v2
@@ -21,6 +29,8 @@ export default async function migration01(
   const rootDirPath = join(OUTDIR_BASE_PATH, ROOT_DIR)
   const backupDirPath = join(rootDirPath, BACKUP_DIR)
   const prepareDirPath = join(rootDirPath, PREPARE_DIR)
+  const modifiedPostIdsFilePath = join(rootDirPath, 'list.txt')
+
   if (initial) {
     await setupEmptyDirectory(rootDirPath)
     log(`rootDirPath: ${rootDirPath} exists.`)
@@ -49,6 +59,29 @@ export default async function migration01(
     wrapFunctionWithDeps(appendAttributesToImagesInSlideshowV2, imageInfoes),
     appendUrlOriginalToVideosInVideo,
   ])
+
+  // write modified posts to files for debugging
+  log('Content of these posts got modified: ', modifiedPostIds)
+  if (initial) {
+    await writeFile(modifiedPostIdsFilePath, modifiedPostIds.join(','), {
+      encoding: 'utf-8',
+      flag: 'w+',
+    })
+  } else {
+    await appendFile(
+      modifiedPostIdsFilePath,
+      `,${modifiedPostIds.join(',')}`,
+      'utf-8',
+    )
+  }
+
+  {
+    const { ok, fail } = await writePostsToFiles(prepareDirPath, modifiedPosts)
+
+    if (fail !== 0) {
+      errorLog(`There are ${fail} errors while backing up modified posts.`)
+    }
+  }
 
   log('Finished migration01')
 }
