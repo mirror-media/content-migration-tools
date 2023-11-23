@@ -7,19 +7,22 @@ export default function modifyContentData(
 ) {
   const modifiedPostIds: string[] = []
   const newPosts = posts.map(post => {
+    const copiedPost: RawPost = JSON.parse(JSON.stringify(post))
+
     const [isUpdated, modifiedContent] = modificationFns.reduce(
       ([oldUpdated, oldContent], fn) => {
         const [newUpdated, newContent] = fn(oldContent)
 
         return [oldUpdated || newUpdated, newContent]
       },
-      [false, post.content],
+      [false, copiedPost.content],
     )
 
-    if (isUpdated) modifiedPostIds.push(post.id)
-    post.content = modifiedContent
+    if (isUpdated) modifiedPostIds.push(copiedPost.id)
 
-    return post
+    copiedPost.content = modifiedContent
+
+    return copiedPost
   })
 
   return {
