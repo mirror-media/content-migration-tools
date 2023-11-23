@@ -1,11 +1,12 @@
 import type { RawPost } from '../graphql/post'
-import { setupEmptyDirectory } from '../helpers/fs'
+import { setupEmptyDirectory, writeJson } from '../helpers/fs'
 import { OUTDIR_BASE_PATH } from '../constants/config'
 import { join } from 'node:path'
 import getImageInfoesInSlideshowV2 from '../operations/get-image-infoes-in-slideshow-v2'
 import {
   askQuestion,
   errorLog,
+  getMigrationRootDirName,
   log,
   wrapFunctionWithDeps,
 } from '../helpers/utils'
@@ -29,13 +30,12 @@ export default async function migration01(
 ) {
   log(`Begin migration01.  There are ${posts.length} posts.`)
 
-  const ROOT_DIR = 'migration01'
-  const BACKUP_DIR = 'backup'
-  const PREPARE_DIR = 'prepare'
+  const ROOT_DIR = getMigrationRootDirName('migration01')
+  const BACKUP_DIR = 'original'
+  const PREPARE_DIR = 'modified'
   const rootDirPath = join(OUTDIR_BASE_PATH, ROOT_DIR)
   const backupDirPath = join(rootDirPath, BACKUP_DIR)
   const prepareDirPath = join(rootDirPath, PREPARE_DIR)
-  const modifiedPostIdsFilePath = join(rootDirPath, 'list.txt')
 
   if (initial) {
     await setupEmptyDirectory(rootDirPath)
@@ -46,39 +46,45 @@ export default async function migration01(
     log(`backupDirPath: ${prepareDirPath} exists.`)
   }
 
-  // back up posts before operations
-  {
-    const { ok, fail } = await writePostsToFiles(backupDirPath, posts)
-
-    if (fail !== 0) {
-      errorLog(`There are ${fail} errors while backing up posts.`)
-      return
-    }
-  }
-
   // get used image infoes
   const imageInfoes = await getImageInfoesInSlideshowV2(posts)
   const imageInfoCount = Object.keys(imageInfoes).length
   log(`Got ${imageInfoCount} image infoes.`)
+  const imageInfoesFilePath = join(rootDirPath, 'image-infoes.json')
+  await writeJson(imageInfoesFilePath, imageInfoes)
 
   const { modifiedPostIds, modifiedPosts } = modifyContentData(posts, [
     wrapFunctionWithDeps(appendAttributesToImagesInSlideshowV2, imageInfoes),
     appendUrlOriginalToVideosInVideo,
   ])
 
+  // back up posts before operations
+  {
+    const originalPosts = posts.filter(post =>
+      modifiedPostIds.includes(post.id),
+    )
+    const { ok, fail } = await writePostsToFiles(backupDirPath, originalPosts)
+
+    if (fail !== 0) {
+      errorLog(`There are ${fail} errors while backing up posts.`)
+      process.exit(1)
+    }
+  }
+
   // write modified posts to files for debugging
-  log('Content of these posts got modified: ', modifiedPostIds)
+  const modifiedPostIdsStr = modifiedPostIds.join(',')
+  log(
+    `There are ${modifiedPostIds.length} post's content got modified: `,
+    modifiedPostIdsStr,
+  )
+  const modifiedPostIdsFilePath = join(rootDirPath, 'modified-post-ids.txt')
   if (initial) {
-    await writeFile(modifiedPostIdsFilePath, modifiedPostIds.join(','), {
+    await writeFile(modifiedPostIdsFilePath, modifiedPostIdsStr, {
       encoding: 'utf-8',
       flag: 'w+',
     })
   } else {
-    await appendFile(
-      modifiedPostIdsFilePath,
-      `,${modifiedPostIds.join(',')}`,
-      'utf-8',
-    )
+    await appendFile(modifiedPostIdsFilePath, `,${modifiedPostIdsStr}`, 'utf-8')
   }
 
   {
@@ -86,7 +92,7 @@ export default async function migration01(
 
     if (fail !== 0) {
       errorLog(`There are ${fail} errors while backing up modified posts.`)
-      return
+      process.exit(1)
     }
   }
 

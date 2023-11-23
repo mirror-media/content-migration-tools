@@ -31,6 +31,18 @@ async function setupEmptyDirectory(dir: string) {
 
 async function writeJson(path: string, json: JSONValue) {
   try {
+    const content = await readFile(path, 'utf-8')
+    const oldJson = JSON.parse(content)
+    const newJson = Object.assign({}, oldJson, json)
+    await writeFile(path, JSON.stringify(newJson), {
+      encoding: 'utf-8',
+      flag: 'w',
+    })
+
+    return
+  } catch (err) {}
+
+  try {
     await writeFile(path, JSON.stringify(json), {
       encoding: 'utf-8',
       flag: 'w+',

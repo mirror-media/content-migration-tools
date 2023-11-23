@@ -86,6 +86,12 @@ async function askQuestion(query: string) {
   })
 }
 
+function getMigrationRootDirName(migrationName: string) {
+  const postfix = Math.floor(Date.now() / 1000)
+
+  return `${migrationName}_${postfix}`
+}
+
 export {
   fireGqlRequest,
   log,
@@ -93,4 +99,5 @@ export {
   uniq,
   wrapFunctionWithDeps,
   askQuestion,
+  getMigrationRootDirName,
 }
