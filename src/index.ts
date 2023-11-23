@@ -7,31 +7,12 @@ import {
   END_DATE_TIME,
   OUTDIR_BASE_PATH,
 } from './constants/config'
-import { GetAuthMutation, type RawAuthResult } from './graphql/auth'
 import { GetPostCountQuery, GetPostsQuery, type RawPost } from './graphql/post'
 import { fireGqlRequest, log } from './helpers/utils'
 import { ensureDirectory } from './helpers/fs'
 import migration01 from './migrations/01'
 import axios from 'axios'
-
-async function getAuth(): Promise<[boolean, string]> {
-  const { data } = await fireGqlRequest<
-    RawAuthResult,
-    'authenticateUserWithPassword'
-  >(print(GetAuthMutation), {
-    email: USER_NAME,
-    password: PASSWORD,
-  })
-
-  if (data?.authenticateUserWithPassword) {
-    const { sessionToken, message } = data.authenticateUserWithPassword
-
-    if (sessionToken) return [true, sessionToken]
-    else if (message) return [false, message]
-  }
-
-  return [false, '']
-}
+import { getAuth } from './helpers/requests'
 
 async function getPostCount() {
   const { data } = await fireGqlRequest<number, 'count'>(
@@ -73,7 +54,7 @@ async function main() {
   log(`OUTPUT_BASE_PATH: ${OUTDIR_BASE_PATH} exists.`)
 
   if (SHOULD_GET_AUTH) {
-    const authResult = await getAuth()
+    const authResult = await getAuth(USER_NAME, PASSWORD)
 
     log('auth result is: ', authResult[0])
     if (authResult[0]) {

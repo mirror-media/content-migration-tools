@@ -1,5 +1,12 @@
 import { constants } from 'node:fs'
-import { mkdir, access, readdir, rm, writeFile } from 'node:fs/promises'
+import {
+  mkdir,
+  access,
+  readdir,
+  rm,
+  writeFile,
+  readFile,
+} from 'node:fs/promises'
 import { join } from 'node:path'
 import type { JSONValue } from '../types/common'
 import { errorLog } from './utils'
@@ -53,4 +60,17 @@ async function writeJson(path: string, json: JSONValue) {
   }
 }
 
-export { ensureDirectory, setupEmptyDirectory, writeJson }
+async function readJson<T>(path: string) {
+  try {
+    const content = await readFile(path, 'utf-8')
+    const json: T = JSON.parse(content)
+
+    return json
+  } catch (err) {
+    errorLog('Error on readJson: ', path)
+    errorLog(err)
+    return null
+  }
+}
+
+export { ensureDirectory, setupEmptyDirectory, writeJson, readJson }
