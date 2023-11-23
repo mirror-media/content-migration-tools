@@ -106,7 +106,9 @@ function appendAttributesToImagesInSlideshowV2(
               Object.hasOwn(image, 'imageFile') &&
               typeof image['imageFile'] === 'object' &&
               image['imageFile'] !== null &&
-              !Array.isArray(image['imageFile'])
+              !Array.isArray(image['imageFile']) &&
+              (typeof image['imageFile']['width'] !== 'number' ||
+                typeof image['imageFile']['height'] !== 'number')
             ) {
               const info = imageInfoes[image['id']]
               image['imageFile']['width'] = info.width
@@ -184,7 +186,7 @@ function appendUrlOriginalToVideosInVideo(
 }
 
 function getUrlOrignalOfVideo(bucket: string, filename: string) {
-  const GCS_BASE = 'https://storage.googleapis.com/'
+  const GCS_BASE = 'https://storage.googleapis.com'
 
   return `${GCS_BASE}/${bucket}/files/${filename}`
 }
