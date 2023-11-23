@@ -93,7 +93,7 @@ async function main() {
   let offset: number = 0
   const take: number = 1000
 
-  log('begin migration process')
+  log('Begin migration process.')
   while (offset < totalCount) {
     // get posts
     const rawPostList = await getPosts(take, offset)
@@ -102,7 +102,7 @@ async function main() {
 
     offset += Math.min(take, rawPostList.length)
   }
-  log('finished migration process')
+  log('Finished migration process.')
 }
 
 main()

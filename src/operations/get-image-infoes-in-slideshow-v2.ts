@@ -13,7 +13,7 @@ export default async function getImageInfoesInSlideshowV2(posts: RawPost[]) {
   })
 
   const uniqImageIdList = uniq(imageIdList)
-  log(`There are ${uniqImageIdList.length} unique images`)
+  log(`There are ${uniqImageIdList.length} unique images.`)
 
   const { data } = await fireGqlRequest<RawPhoto[], 'photos'>(
     print(GetImageInfoes),
