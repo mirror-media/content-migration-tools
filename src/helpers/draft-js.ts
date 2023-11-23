@@ -24,7 +24,7 @@ function getItemIdsByType(
         typeof entity === 'object' &&
         entity !== null &&
         Object.hasOwn(entity, 'type') &&
-        String(entity['type']).toLocaleLowerCase() === typeKey
+        String(entity['type']).toLowerCase() === typeKey
       ) {
         const data = entity['data']
 
@@ -85,7 +85,7 @@ function appendAttributesToImagesInSlideshowV2(
         typeof entity === 'object' &&
         entity !== null &&
         Object.hasOwn(entity, 'type') &&
-        String(entity['type']).toLocaleLowerCase() === TYPE_KEY
+        String(entity['type']).toLowerCase() === TYPE_KEY
       ) {
         const data = entity['data']
 
@@ -145,7 +145,7 @@ function appendUrlOriginalToVideosInVideo(
         typeof entity === 'object' &&
         entity !== null &&
         Object.hasOwn(entity, 'type') &&
-        String(entity['type']).toLocaleLowerCase() === TYPE_KEY
+        String(entity['type']).toLowerCase() === TYPE_KEY
       ) {
         const data = entity['data']
 
