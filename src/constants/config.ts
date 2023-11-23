@@ -17,3 +17,7 @@ export const END_DATE_TIME = env.END_DATE_TIME ?? new Date().toISOString()
 export const OUTDIR_BASE_PATH = join(cwd(), 'files')
 
 export const GCS_BUCKET = env.GCS_BUCKET ?? 'v3-statics-dev.mirrormedia.mg'
+
+// only used by update-cms script
+export const MIGRATION_NAME = env.MIGRATION_NAME ?? ''
+export const POST_CONTENT_DIR = env.POST_CONTENT_DIR ?? ''

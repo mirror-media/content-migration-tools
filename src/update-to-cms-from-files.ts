@@ -1,11 +1,11 @@
-import 'dotenv/config'
-import { env } from 'node:process'
 import { join } from 'node:path'
 import {
   OUTDIR_BASE_PATH,
   SHOULD_GET_AUTH,
   USER_NAME,
   PASSWORD,
+  MIGRATION_NAME,
+  POST_CONTENT_DIR,
 } from './constants/config'
 import { errorLog, log, askQuestion } from './helpers/utils'
 import { constants } from 'node:fs'
@@ -17,9 +17,11 @@ import updatePostDataToCMS from './operations/update-post-data-to-cms'
 import { getAuth } from './helpers/requests'
 import axios from 'axios'
 
-const migrationName = env.MIGRATION_NAME ?? ''
-const postContentDir = env.POST_CONTENT_DIR ?? ''
-const postContentDirPath = join(OUTDIR_BASE_PATH, migrationName, postContentDir)
+const postContentDirPath = join(
+  OUTDIR_BASE_PATH,
+  MIGRATION_NAME,
+  POST_CONTENT_DIR,
+)
 
 async function updateToCMSFromFIles() {
   if (SHOULD_GET_AUTH) {
