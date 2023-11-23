@@ -3,11 +3,6 @@ import type { JSONValue } from '../types/common'
 
 export type RawPost = {
   id: string
-  title: string
-  slug: string
-  publishedDate: string
-  createdAt: string
-  updatedAt: string
   content: JSONValue | null
 }
 
@@ -43,11 +38,6 @@ export const GetPostsQuery = gql`
       skip: $skip
     ) {
       id
-      title
-      slug
-      publishedDate
-      createdAt
-      updatedAt
       content
     }
   }
@@ -57,11 +47,6 @@ export const UpdatePostsMutation = gql`
   mutation ($data: [PostUpdateArgs!]!) {
     updatePosts(data: $data) {
       id
-      title
-      slug
-      publishedDate
-      createdAt
-      updatedAt
       content
     }
   }
