@@ -8,7 +8,7 @@ import {
   OUTDIR_BASE_PATH,
 } from './constants/config'
 import { GetPostCountQuery, GetPostsQuery, type RawPost } from './graphql/post'
-import { fireGqlRequest, log } from './helpers/utils'
+import { fireGqlRequest, log, getMigrationRootDirName } from './helpers/utils'
 import { ensureDirectory } from './helpers/fs'
 import migration01 from './migrations/01'
 import axios from 'axios'
@@ -75,11 +75,13 @@ async function main() {
   const take: number = 1000
 
   log('Begin migration process.')
+  const rootDir = getMigrationRootDirName('migration01')
+
   while (offset < totalCount) {
     // get posts
     const rawPostList = await getPosts(take, offset)
 
-    await migration01(rawPostList, offset === 0)
+    await migration01(rawPostList, rootDir, offset === 0)
 
     offset += Math.min(take, rawPostList.length)
   }

@@ -6,7 +6,6 @@ import getImageInfoesInSlideshowV2 from '../operations/get-image-infoes-in-slide
 import {
   askQuestion,
   errorLog,
-  getMigrationRootDirName,
   log,
   wrapFunctionWithDeps,
 } from '../helpers/utils'
@@ -26,11 +25,12 @@ import updatePostDataToCMS from '../operations/update-post-data-to-cms'
  */
 export default async function migration01(
   posts: RawPost[],
+  rootDir: string,
   initial: boolean = false,
 ) {
   log(`Begin migration01.  There are ${posts.length} posts.`)
 
-  const ROOT_DIR = getMigrationRootDirName('migration01')
+  const ROOT_DIR = rootDir
   const BACKUP_DIR = 'original'
   const PREPARE_DIR = 'modified'
   const rootDirPath = join(OUTDIR_BASE_PATH, ROOT_DIR)
